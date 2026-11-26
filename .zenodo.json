@@ -1,0 +1,30 @@
+{
+  "title": "Sharp minimax rates for Gaussian preference comparisons",
+  "upload_type": "software",
+  "version": "1.0.0",
+  "publication_date": "2026-11-27",
+  "creators": [
+    {
+      "name": "DannyExperiments"
+    }
+  ],
+  "description": "For n observed pairs of independent N(θ,I) draws, each with a noiseless nearest-point label, the minimax expected Euclidean error on θ ∈ [−1,1]ᵈ is of order min{√(d/n), d√d/n}. The bounds have absolute constants and the transition is at n of order d². This closes the Gaussian dimension gap posed by Jourdan, Yüce and Flammarion in ICML 2025, §5.\n\nThe upper bound uses Gaussian midpoints at smaller sample sizes. At larger sample sizes, comparison boundaries close to the truth cover directions through a classical VC epsilon-net argument and localize the entire feasible set. The estimator uses every observed comparison. For the lower bound, a hypercube prior separates the information in the observed pairs from the additional label information, which is bounded by a reference logistic log loss. The original paper gives the feasibility estimator and the fixed-dimension acceleration. A related exponent occurs in stationary Poisson hyperplane geometry.\n\nThe exact replay checks logistic identities, the crossover and an example with six nearby comparison planes. The offline explorer shows the effect of removing each plane. The scope is independent Gaussian pairs with known identity covariance and noiseless nearest-point labels. External peer review and formal verification are pending.\n\nUnder human direction, ChatGPT Astra 6.2 (OpenAI) generated the discovery proof and original replay packet. OpenAI Codex reviewed the mathematics and revised the manuscript. GPT-6.2 Sol checked the original question and related results, prepared the exact finite replay and worked visual, and assembled the release. DannyExperiments maintains the repository and is the preferred citation identity. No AI system is proposed as an author.",
+  "keywords": [
+    "minimax estimation",
+    "Gaussian location model",
+    "pairwise comparisons",
+    "noiseless preferences",
+    "VC dimension",
+    "conditional entropy"
+  ],
+  "access_right": "open",
+  "license": "other-closed",
+  "notes": "All rights reserved. Publicly downloadable files are supplied without a repository-wide reuse license.",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/DannyExperiments/gaussian-preference-minimax-rates/releases/tag/v1.0.0",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ]
+}

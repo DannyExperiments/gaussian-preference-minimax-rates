@@ -1,0 +1,3 @@
+324 exact logistic log-loss decompositions
+180 exact information scale and crossover checks
+343 exact geometry fixtures and six released-face witnesses

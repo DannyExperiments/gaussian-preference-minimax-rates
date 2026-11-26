@@ -1,0 +1,125 @@
+\documentclass[11pt,a4paper]{amsart}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amssymb}
+\DeclareFontShape{OMX}{cmex}{m}{n}{<->cmex10}{}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Sharp minimax rates for Gaussian preference comparisons}}
+\DeclareMathSizes{8}{8}{8}{8}
+\DeclareMathSizes{9}{9}{8}{8}
+\DeclareMathSizes{10.95}{10.95}{8}{8}
+\newtheorem{theorem}{Theorem}
+\title[Minimax rates for Gaussian preference comparisons]{Sharp minimax rates for\texorpdfstring{\\}{ }Gaussian preference comparisons}
+\date{November 27, 2026}
+\begin{document}
+\begin{abstract}
+We determine the minimax expected Euclidean error for estimating an isotropic Gaussian mean from observed independent sample pairs and their noiseless nearest-point labels. Over the unit coordinate cube the risk is of order \(\min\{\sqrt{d/n},d^{3/2}/n\}\) for dimension \(d\) and \(n\) pairs, with absolute constants. This closes the dimension gap posed by Jourdan, Y\"uce and Flammarion in this model. The lower bound controls the conditional entropy of the labels, and the upper bound uses the simultaneous coverage of directions by near-boundary comparisons.
+\end{abstract}
+\maketitle
+
+\section{The experiment and minimax rate}
+
+Let \(\theta\in[-1,1]^d\). For \(i=1,\ldots,n\), observe an independent triple \((X_i,Y_i,Z_i)\) with \(X_i,Y_i\) independent \(N_d(\theta,I_d)\) draws and \(Z_i=1\) if \(X_i\) is nearer to \(\theta\) than \(Y_i\), and \(Z_i=-1\) otherwise. Ties have probability zero. For identity covariance the nearest-point preference is exactly the comparison of the two Gaussian log densities. In this design both points are observed and their sampling distribution depends on the unknown mean.
+
+Jourdan, Y\"uce and Flammarion \cite{jyf} establish acceleration to order \(1/n\) at fixed dimension and ask about the dimension gap in \S5. In the isotropic Gaussian example their Appendix F gives the directional scale of order \(\sqrt d\). Their Theorem 5.3 yields the lower bound \(\Omega(\min\{\sqrt{d/n},d/n\})\). The upper bound from their covering analysis has order \(d^{3/2}/n\) up to logarithms in the large-sample regime. We establish matching dimension and sample-size dependence on the cube. Results for Gaussian comparison items with a fixed known distribution \cite{md}, stationary Poisson hyperplanes \cite{bo}, and per-observation thresholded qualities \cite{jf} concern different experiments.
+
+\begin{theorem}\label{thm:rate}
+There are absolute constants \(0<c<C<\infty\) such that for all integers \(n,d\ge1\) the risk
+\[
+ R_{n,d}=\inf_{\widehat\theta}\sup_{\theta\in[-1,1]^d}
+             \mathbb E_\theta\|\widehat\theta-\theta\|_2
+\]
+lies between \(c\min\{\sqrt{d/n},d^{3/2}/n\}\) and \(C\min\{\sqrt{d/n},d^{3/2}/n\}\). The infimum is over estimators based on the observed triples.
+\end{theorem}
+
+\section{Gaussian comparison hyperplanes}
+
+For a single pair, write \(M=(X+Y)/2\) and \(U=(X-Y)/\|X-Y\|_2\). The Gaussian sum and difference are independent, yielding \(M\sim N_d(\theta,I_d/2)\) and an independent \(U\) uniform on the unit sphere. For \(d=1\) this is a fair sign. Set \(B=U\cdot M\), \(T=U\cdot\theta\) and \(G=B-T\). The comparison is \(Z=\operatorname{sign}(T-B)\) by expanding the difference of squared distances. Conditional on \(U\), the variable \(G\) has law \(N(0,1/2)\), independent of \(U\). A candidate \(\theta+h\) satisfies the closed comparison halfspace if and only if
+\begin{equation}\label{eq:half}
+ V\cdot h\le |G|,\qquad V=\operatorname{sign}(G)U.
+\end{equation}
+The direction \(V\) is uniform on the sphere independently of \(|G|\). These statements apply independently across the \(n\) pairs. The hyperplane form already appears in the Gaussian analysis of \cite{jyf}.
+
+\section{Lower bound from conditional label entropy}
+
+Choose a prior \(\theta=aS\) with independent fair signs \(S_1,\ldots,S_d\), where
+\[
+ a=\kappa\min\{n^{-1/2},d/n\}
+\]
+for a small universal \(0<\kappa\le1\). The prior lies in the cube. Let \(W\) collect the observed pairs and \(Z^n\) the labels. For each parameter outcome, the relative entropy of the pairs against their law at zero is \(nda^2\), since each pair consists of two Gaussian shifts with known identity covariance. Averaging the relative entropy against this common reference bounds \(I(S;W)\) by \(nda^2\).
+
+For each fixed observed pair, use the reference label distribution
+\[
+ q(z\mid B)=\frac{1}{1+\exp(zB/a)},\qquad z\in\{-1,1\}.
+\]
+The reference favors the label for mean zero. At the actual label its log loss is
+\begin{equation}\label{eq:loss}
+ -\log q(Z\mid B)=\log(1+e^{-|B|/a})
+     +\frac{|B|}{a}\,\mathbf{1}_{\{\min(0,T)<B<\max(0,T)\}} .
+\end{equation}
+Indeed the preferred label reverses precisely when \(B\) lies strictly between zero and \(T\). Reversing the sign in the logistic loss adds \(|B|/a\). Null ties do not affect the estimate.
+
+Conditional on \(\theta,U\), the density of \(B\) is bounded by \(1/\sqrt\pi\). Using \(\log(1+x)\le x\), the first term in \eqref{eq:loss} has expectation at most \(2a/\sqrt\pi\). The second has conditional expectation at most \(T^2/(2a\sqrt\pi)\), by integrating \(|B|/a\) between zero and \(T\). Spherical symmetry gives \(\mathbb E[T^2\mid\theta]=\|\theta\|_2^2/d=a^2\). Hence the expected loss per label is at most \(C_0a\) for an absolute \(C_0\). Use the product reference distribution across pairs. Conditional entropy is bounded by the reference's expected log loss, even when the actual labels depend on one another conditional on all the pairs. Since \(Z^n\) is determined by \(S,W\),
+\[
+ I(S;W,Z^n)=I(S;W)+H(Z^n\mid W)
+           \le nda^2+C_0 na\le d(\kappa^2+C_0\kappa).
+\]
+
+Write \(H_b\) for binary entropy in nats and let \(p_j\le1/2\) be the error probability of the best posterior guess for \(S_j\). The conditional entropy of \(S_j\) is at most \(H_b(p_j)\). Subadditivity and concavity show that
+\[
+ d\log 2-I(S;W,Z^n)\le \sum_jH_b(p_j)
+                   \le dH_b\!\left(\frac1d\sum_jp_j\right).
+\]
+Choose \(\kappa\) so that \(\kappa^2+C_0\kappa\le\log 2-H_b(1/4)\). As \(H_b\) increases on \([0,1/2]\), the expected number of wrongly guessed signs is at least \(d/4\) for every estimator. Use the coordinate signs of \(\widehat\theta\) with a fixed convention at zero. If \(K\) of them are wrong, \(\|\widehat\theta-aS\|_2\ge a\sqrt K\ge aK/\sqrt d\). The Bayes risk is at least \(a\sqrt d/4\), which lower bounds the minimax risk.
+
+\section{Upper bound from nearby comparisons}
+
+Let \(\widehat\theta\) be any measurable choice of a feasible point in the cube under all observed halfspace constraints. Such a choice can select the first rational point in an enumeration of the cube satisfying every inequality strictly, and select zero if there is no such point. Almost surely the true point satisfies all inequalities strictly. A relative neighborhood in the cube then contains a rational point, even when \(\theta\) is on the cube boundary.
+
+For \(0<t\le 2\sqrt d\), retain for analysis the pairs with \(|G|\le t/(4\sqrt d)\). This selection uses the true parameter only in the proof. The estimator uses all halfspaces. Write \(N_t\) for the number retained. It is binomial with mean at least \(c_0nt/\sqrt d\) for an absolute \(c_0>0\), because the density of \(|G|\) is bounded below on \([0,1/2]\). Conditional on the retained indices, their directions are independent and uniform. For any unit \(v\),
+\[
+ \mathbb P\{V\cdot v\ge 1/(2\sqrt d)\}\ge p_0,\qquad p_0=3/32.
+\]
+Indeed \(\mathbb E(V\cdot v)^2=1/d\) and \(\mathbb E(V\cdot v)^4=3/(d(d+2))\le3/d^2\). The Paley--Zygmund inequality at one quarter of the mean square, then sign symmetry, give the bound. It also holds on the two-point sphere for \(d=1\).
+
+We use the standard VC epsilon-net argument \cite{hw} to hit all these caps. They are a subclass of affine halfspaces of VC dimension at most \(d+1\). If a finite sample misses any of the closed caps, its finitely many strict inequalities imply that it misses one indexed by a direction in a fixed countable dense subset of the sphere. On the event that the first sample of size \(m\) misses such a cap, choose the first missed one in that enumeration. An independent second sample of size \(m\) contains at least \(p_0m/2\) points in that cap with probability at least \(1/2\) when \(m\) is above an absolute constant. Condition on all \(2m\) points before randomly assigning their indices to the two halves. The Sauer--Shelah lemma bounds the number of possible traces of caps by
+\[
+ \sum_{j=0}^{d+1}\binom{2m}{j}
+ \le \left(\frac{2em}{d+1}\right)^{d+1}
+ \qquad (2m\ge d+1).
+\]
+A trace of size at least \(p_0 m/2\) lies entirely in the second half with probability at most \(2^{-p_0m/2}\). Thus the probability of missing a cap is at most twice the product of these two bounds. For \(m\ge C_1d\) with a sufficiently large absolute \(C_1\), this is bounded by \(C_2e^{-c_1m}\) for absolute constants. This uses caps of fixed positive mass, so the scale for the number of directions is \(d\).
+
+If the retained directions hit every cap, take any displacement \(h\) with \(\|h\|_2>t\) and the cap indexed by \(v=h/\|h\|_2\). A retained direction in the cap satisfies
+\[
+ V\cdot h > t/(2\sqrt d) > |G|,
+\]
+which violates \eqref{eq:half}. Hence all feasible points lie within distance \(t\) of the truth. For \(t\ge C_3d^{3/2}/n\), take \(C_3\) large enough that half the binomial mean is at least \(C_1d\). A binomial lower-tail bound and the cap estimate then yield
+\[
+ \mathbb P_\theta(\|\widehat\theta-\theta\|_2>t)
+ \le C_4 e^{-c_2nt/\sqrt d},\qquad
+ C_3d^{3/2}/n\le t\le 2\sqrt d,
+\]
+with constants uniform in \(\theta\). Integrating the tail gives expected error \(O(d^{3/2}/n)\). If the lower endpoint exceeds \(2\sqrt d\), the cube diameter already gives that bound.
+
+Finally, the average of the Gaussian midpoints has mean \(\theta\) and covariance \(I_d/(2n)\). Clipping each coordinate to the cube can only reduce its distance to \(\theta\), so its expected error is at most \(\sqrt{d/(2n)}\). Use this estimator for \(n\le d^2\) and the feasible estimator otherwise. This proves the upper bound in Theorem~\ref{thm:rate}.
+
+\section*{Research disclosure}
+
+\begingroup\raggedright
+Under human direction, ChatGPT Astra 6.2 (OpenAI) generated the discovery proof and original replay packet. OpenAI Codex reviewed the mathematics and revised the manuscript. GPT-6.2 Sol checked the original question and related results, prepared the exact finite replay and worked visual, and assembled the release. DannyExperiments maintains the repository and is the preferred citation identity. No AI system is proposed as an author.
+\par\endgroup
+
+\begin{thebibliography}{9}
+\bibitem{bo}
+F. Baccelli and E. O'Reilly, \emph{The stochastic geometry of unconstrained one-bit data compression}, Electron. J. Probab. \textbf{24} (2019), \href{https://doi.org/10.1214/19-EJP389}{doi:10.1214/19-EJP389}.
+\bibitem{hw}
+D. Haussler and E. Welzl, \emph{Epsilon-nets and simplex range queries}, Discrete Comput. Geom. \textbf{2} (1987), 127--151.
+\bibitem{jf}
+M. Jourdan and N. Flammarion, \emph{Learning distributions from samples and qualities}, \href{https://arxiv.org/abs/2610.17956}{arXiv:2610.17956}, 2026.
+\bibitem{jyf}
+M. Jourdan, G. Y\"uce, and N. Flammarion, \emph{Learning parametric distributions from samples and preferences}, \href{https://proceedings.mlr.press/v267/jourdan25a.html}{Proc. Mach. Learn. Res. \textbf{267}} (2025), 28418--28445.
+\bibitem{md}
+A. K. Massimino and M. A. Davenport, \emph{As you like it: Localization via paired comparisons}, \href{https://jmlr.org/papers/v22/18-105.html}{J. Mach. Learn. Res. \textbf{22} (186)} (2021), 1--39.
+\end{thebibliography}
+\end{document}

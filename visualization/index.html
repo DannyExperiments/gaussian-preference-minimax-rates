@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nearby comparisons localize the mean</title>
+<style>
+* { box-sizing:border-box }
+body { margin:0; color:#f5f7fd; background:#101c30; color-scheme:dark; font:17px/1.5 system-ui,sans-serif }
+main { max-width:62rem; margin:auto; padding:clamp(1rem,4vw,2.3rem) }
+h1 { font-size:clamp(1.8rem,5.6vw,3.1rem); line-height:1.12; margin:0 0 .7rem; letter-spacing:-.035em }
+h2 { font-size:1.17rem; margin:0 0 .6rem }
+p { margin:0 0 .8rem; color:#cbd8ed }
+.layout { display:grid; grid-template-columns:minmax(0,3fr) minmax(0,2fr); gap:1rem; margin:1.2rem 0 }
+.card { padding:1rem; background:#1a2b47; border:1px solid #3b5377; border-radius:1rem }
+.choice { display:flex; align-items:center; flex-wrap:wrap; gap:.55rem; margin-bottom:.85rem }
+select { min-height:44px; padding:.3rem .6rem; color:inherit; background:#233d5e; border:1px solid #7191bb; border-radius:.55rem; font:inherit }
+canvas { display:block; width:100%; height:clamp(230px,48vw,345px); background:#101c30; border-radius:.7rem; touch-action:pan-y }
+.slider { display:grid; grid-template-columns:auto minmax(0,1fr); gap:.6rem; align-items:center; margin-top:.65rem }
+input { width:100%; min-height:36px; margin:0; accent-color:#8be8df }
+:focus-visible { outline:3px solid #ffd38f; outline-offset:3px }
+.scale { margin:.35rem 0 0 }
+dl { margin:.75rem 0 }
+dl div { display:flex; justify-content:space-between; flex-wrap:wrap; gap:.3rem .8rem; padding:.42rem 0 }
+dt { color:#cbd8ed }
+dd { margin:0; font-weight:700; font-variant-numeric:tabular-nums }
+.primary { color:#a1eee5; font-size:1.32rem }
+.verdict { padding:.7rem; border-radius:.55rem; background:#101c30 }
+summary { cursor:pointer; min-height:44px; font-weight:700 }
+@media (max-width:710px) { .layout { grid-template-columns:1fr } }
+</style>
+</head>
+<body>
+<main>
+<h1>Nearby comparisons localize the mean</h1>
+<p>Six comparisons cut a small feasible box around the true mean. Remove a constraint to see how its direction matters.</p>
+<div class="layout">
+  <section class="card" aria-labelledby="shape">
+    <h2 id="shape">Feasible displacements in three dimensions</h2>
+    <div class="choice">
+      <label for="release">Remove a comparison</label>
+      <select id="release">
+        <option value="none" selected>Keep all six</option>
+        <option value="0">−x cut</option><option value="1">+x cut</option>
+        <option value="2">−y cut</option><option value="3">+y cut</option>
+        <option value="4">−z cut</option><option value="5">+z cut</option>
+      </select>
+    </div>
+    <canvas id="scene" role="img" aria-label="Rotating 3D wireframe of the feasible cube and the true mean"></canvas>
+    <div class="slider">
+      <label for="angle">Rotate</label><input type="range" id="angle" min="0" max="360" value="33" step="1">
+    </div>
+    <p class="scale">Amber marks the true mean. The view rescales to fit the feasible region.</p>
+  </section>
+  <section class="card" aria-labelledby="bounds">
+    <h2 id="bounds">Distance from the true mean</h2>
+    <div aria-live="polite">
+      <dl>
+        <div><dt>Comparison offset</dt><dd>1/16</dd></div>
+        <div><dt>Test radius</dt><dd>1/2</dd></div>
+        <div><dt>Farthest feasible point</dt><dd class="primary" id="radius">√3/16</dd></div>
+      </dl>
+      <p id="verdict" class="verdict"></p>
+    </div>
+    <p>In the theorem, the error scales as √(d/n) up to about d² pairs, then as d√d/n, up to absolute constants.</p>
+  </section>
+</div>
+<details>
+  <summary>Why six directions suffice here</summary>
+  <p>The cuts are at signed coordinate values ±1/16. Every unit direction has a coordinate magnitude at least 1/√3, so one of the six close cuts bounds motion along that direction. The most distant feasible points are the corners of the small cube. Without one cut the box extends to the corresponding face of the parameter cube. The theorem obtains close cuts with random directions and the estimator uses every observed comparison.</p>
+</details>
+</main>
+<script>
+"use strict";
+const byId=id=>document.getElementById(id);
+const canvas=byId("scene"), ctx=canvas.getContext("2d");
+const angle=byId("angle"), released=byId("release");
+const offset=1/16;
+const cornerBits=Array.from({length:8},(_,index)=>[index&1,(index>>1)&1,(index>>2)&1]);
+const edges=[];
+for (let a=0; a<8; a++)
+  for (const mask of [1,2,4])
+    if ((a&mask)===0) edges.push([a,a|mask]);
+let dragX=null;
+
+function bounds() {
+  const lo=[-offset,-offset,-offset], hi=[offset,offset,offset];
+  if (released.value!=="none") {
+    const index=Number(released.value);
+    const coordinate=Math.floor(index/2);
+    if (index%2) hi[coordinate]=1;
+    else lo[coordinate]=-1;
+  }
+  return {lo,hi};
+}
+
+function draw() {
+  const {lo,hi}=bounds();
+  const center=lo.map((value,index)=>(value+hi[index])/2);
+  const scale=Math.max(...hi.map((value,index)=>(value-lo[index])/2));
+  const {width,height}=canvas.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=Math.round(width*dpr);
+  canvas.height=Math.round(height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const yaw=Number(angle.value)*Math.PI/180;
+  const tilt=.43+.12*Math.sin(yaw);
+  function project(point) {
+    const [x,y,z]=point.map((value,index)=>(value-center[index])/scale);
+    const rx=x*Math.cos(yaw)+z*Math.sin(yaw);
+    const rz=z*Math.cos(yaw)-x*Math.sin(yaw);
+    const ry=y*Math.cos(tilt)-rz*Math.sin(tilt);
+    const depth=y*Math.sin(tilt)+rz*Math.cos(tilt);
+    const screen=Math.min(width,height)*1.30/(5.2-depth);
+    return {x:width/2+rx*screen,y:height/2-ry*screen,depth};
+  }
+  const candidates=cornerBits.map(bits=>bits.map((bit,index)=>bit ? hi[index] : lo[index]));
+  const vertices=candidates.map(project);
+  const lines=edges.map(([a,b])=>[vertices[a],vertices[b]]);
+  lines.sort((a,b)=>a[0].depth+a[1].depth-b[0].depth-b[1].depth);
+  for (const [p,q] of lines) {
+    const front=p.depth+q.depth>=0;
+    ctx.strokeStyle=front ? "#8be8df" : "#567f91";
+    ctx.lineWidth=front ? 3 : 1.7;
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+    ctx.lineTo(q.x,q.y);
+    ctx.stroke();
+  }
+  const mean=project([0,0,0]);
+  ctx.fillStyle="#ffd38f";
+  ctx.beginPath();
+  ctx.arc(mean.x,mean.y,6,0,2*Math.PI);
+  ctx.fill();
+}
+
+function show() {
+  const {lo,hi}=bounds();
+  const numerator=lo.reduce((sum,value,index)=>sum+Math.max(Math.abs(value),hi[index])**2*256,0);
+  const all= released.value==="none";
+  byId("radius").textContent=`√${numerator}/16`;
+  byId("verdict").textContent=all
+    ? "All feasible points are within the test radius."
+    : "A displacement of 3/4 toward the missing cut is feasible and lies outside the test radius.";
+  canvas.setAttribute("aria-label",all
+    ? "Feasible cube with six nearby cuts, and the mean at its center."
+    : "Elongated feasible box after removing one cut. The mean lies near one end.");
+  draw();
+}
+released.addEventListener("change",show);
+angle.addEventListener("input",draw);
+canvas.addEventListener("pointerdown",event=>{
+  dragX=event.clientX;
+  canvas.setPointerCapture(event.pointerId);
+});
+canvas.addEventListener("pointermove",event=>{
+  if(dragX===null) return;
+  const value=Math.round(Number(angle.value)+1.2*(event.clientX-dragX));
+  angle.value=(value%360+360)%360;
+  dragX=event.clientX;
+  draw();
+});
+for(const event of ["pointerup","pointercancel","lostpointercapture"])
+  canvas.addEventListener(event,()=>{dragX=null;});
+new ResizeObserver(draw).observe(canvas);
+show();
+</script>
+</body>
+</html>
